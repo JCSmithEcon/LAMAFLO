@@ -228,6 +228,6 @@ replace Start_MY = Birth_MY if Start_MY<Birth_MY & !missing(Start_MY,Birth_MY)	/
 compress
 label data "Activity Histories, BHPS and UKHLS"
 
-save "${dta_fld}/Merged Dataset imputation_${gap_length}m", replace		// THIS LINE VARIES WITH THE GAP LENGTH FOR IMPUTATION SO THE RELEVANT GLOBAL MACRO IS USED
+save "${dta_fld}/Merged Dataset_gap${gap_length}m", replace		// THIS LINE VARIES WITH THE GAP LENGTH FOR IMPUTATION SO THE RELEVANT GLOBAL MACRO IS USED
 rm "${dta_fld}/Merged Dataset - Raw.dta"
 
