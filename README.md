@@ -7,4 +7,4 @@ UKHLS and BHPS data are an under-utilised source of information on labour market
 
 Anyone creating labour market histories from BHPS and UKHLS data is standing on the shoulders of giants. Great credit is due to those who have worked on these data before, including Gillian Paull, Brendan Halpin, David Maré and particularly Liam Wright for his immense and well-documented efforts, available in GitHub at https://github.com/ljwright/work-life-histories-ukhls-bhps and in OSF at https://doi.org/10.17605/OSF.IO/C3V9F.
 
-Some of the code provided here is new. Some code files are modified versions of Liam Wright's code. To create labour market histories, these new or changed files need to be supplemented with additional unchanged files created by Liam Wright.
+Some of the code provided here is new. Most code files are modified versions of Liam Wright's code. To create labour market histories, these new or changed files need to be supplemented with some unchanged files created by Liam Wright, which are also provided here.
