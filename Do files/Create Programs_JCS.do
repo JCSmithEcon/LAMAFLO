@@ -156,7 +156,6 @@ program prog_implausibledates
 		}
 	else if "$implausibledates_drop"!="obs" {
 		di in red "`r(N)' cases of implausible start dates (earlier than birth). You have chosen to drop the whole pidp-Wave history (`countYY' observations) where at least one date is implausible (rather than just dropping the `countXX' implausible-date spells). You have chosen to retain non education statuses after age $noneducstatus_minage."
-		by pidp Wave (Spell), sort: egen YY=max(XX)
 		drop if YY==1									// DROPS pidp-WAVE IF ANY START/END DATE IS PRIOR TO BIRTH OR THERE IS A NON-EDUCATION SPELL WITH START/END DATE PRIOR TO AGE $noneducstatus_minage. NO NEED TO RENUMBER SPELLS BECAUSE ALL SPELLS FOR THAT pidp-Wave ARE DROPPED.
 		}
 	drop XX YY
