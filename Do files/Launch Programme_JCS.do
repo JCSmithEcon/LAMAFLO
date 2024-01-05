@@ -53,7 +53,7 @@ global file_type
 
 
 /*
-SECTION 2. Choose the following parameters: number of waves, data cleaning, data imputation.
+SECTION 2. Choose the following values:
 */
 
 * Number of BHPS Waves to be collected
