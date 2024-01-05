@@ -30,15 +30,15 @@ SECTION 1. Change file locations. Select appropriate file suffix (stub) if using
 */
 * Log file (if desired)
 capture log close
-log using "C:/Users/ecscd/OneDrive - University of Warwick/LAMAFLO Stata code on OneDrive - JCS/imputation_0m", replace
+log using "C:/Users/user/myfolder/logfile.log", replace
 * Top-level directory which original and constructed data files will be located under
-cd "C:/Users/ecscd/OneDrive - University of Warwick/"
+cd "C:/Users/user/"
 * Directory in which UKHLS and BHPS files are kept.
-global fld					"LAMAFLO UKHLS BHPS Data on OneDrive"
+global fld					"UKHS and BHPS data"
 * Folder activity histories will be saved in.
-global dta_fld				"LAMAFLO JCS Datasets on OneDrive/0m"
+global dta_fld				"data"
 * Folder do files are kept in.
-global do_fld				"LAMAFLO Stata code on OneDrive - JCS"
+global do_fld				"do files"
 * Set Personal ado folder
 sysdir set PLUS 			"${do_fld}/ado/"
 
@@ -67,6 +67,17 @@ global bhps_lifejob			3
 global ukhls_lifehistwaves 	1 5
 
 
+* You can choose between three options in relation to furlough. You can choose to:
+	* 'ignore' furlough, focusing on the underlying employment spell, 
+	* treat furlough as a separate spell, or 
+	* treat furlough as another non-employment status, which is what would happen if you were to run the LW code as it was written prior to furlough.
+* Default value of furlough_choice: The default of "nofurlough" means furlough spells will be subsubmed into the underlying employment spell. Furlough will not appear as a separate status. This option will also be selected if furlough_status does not take either of the other two values.
+* Alternative choices for furlough_choice: 
+	* Choose value "furlough" to retain furlough statuses. For those on furlough, Status coding will be unusual: the last 2 digits represent the usual UKHLS furlough status (12 or 13). The other digits represent the identifiable simultaneously-held employment status (1,2,100 - self-employed, employed, in work with no information about self empl/empl). So when option "furlough" is chosen, status values when furloughed are provided as 112,113,212,213,10012,10013.
+	* Choose value "noadjust" to treat jbstat values 12 and 13 as the original LW code (developed prior to Covid) would: any status other than inlist(jbstat,1,2,100) is treated as non-employment. Statuses 12 and 13 will appear but no account of these representing furlough is taken.
+global furlough_choice 			"nofurlough"
+
+
 * You can select a value for the minimum age at which you choose to believe that the individual has a status that is not full-time education, i.e. the earliest age at which a non-education status such as employment will not be treated as an error and discarded.
 * Detail for noneducstatus_minage (Minimum age for non-education status): All observations for a pidp in the relevant Wave will be dropped if that pidp has a non-education spell starting or ending at an age below this value. 
 * Which data are affected by choice of noneducstatus_minage? The value is used to select data from lifemst files !!! PLUS POSSIBLY OTHERS !!! and will impact all datasets using those data.
@@ -92,12 +103,12 @@ global nonchron_correct			"Y"
 
 
 * Set maximum length of gap imputed by halving space between two adjacent spells.
-global gap_length				0
+global gap_length				12
 
 
-* Choose whether the code should run quietly or nosily.
+* Choose whether the code should run quietly or nosily. The code takes some time to run (more than 20 minutes, depending on your setup.
 * Default choice for quietly_noisily: "QUIETLY": The default choice of "QUIETLY" runs the code quietly. Leave blank or choose any other value to run noisily.
-global quietly_noisily			"QUIETLY"
+global quietly_noisily			//"QUIETLY"
 
 
 /*
