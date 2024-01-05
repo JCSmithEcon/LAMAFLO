@@ -1554,7 +1554,6 @@ forval i=2/`spells'{
 Job Attraction (Main attraction of current job - asked if job spell has not ended by the time of the next interview)
 */
 // NOTE: Job_Attraction is collected separately in this file, rather than alongside other variables as in LW.
-// HEREHEREHERE WOULD BE GOOD TO EXPLAIN (TO SELF AND/OR OTHERS) THE RATIONALE FOR THE SIMPLIFIED CODING HERE - WHY DOES THIS WORK?
 *Index Spell Job Attraction
 				gen Job_Attraction_orig0=.											// LW ORIGINAL CODE, THOUGH VARIABLE RENAMED WITH SUFFIX _orig.
 gen Job_Attraction0=.
@@ -1569,8 +1568,6 @@ gen Job_Attraction_F1=cjbatt if cjob==1 & (inlist(AnnualHistory_Routing,1,2) | (
 				gen Job_Attraction_orig2=jbatt1 if currjob1==1						// LW ORIGINAL CODE, THOUGH VARIABLE RENAMED WITH SUFFIX _orig.
 gen Job_Attraction2=jbatt1 if currjob1==1
 gen Job_Attraction_F2=jbatt1 if currjob1==1
-//  gen Job_Attraction_F2=jbatt1 if currjob1==1 & (!inlist(ff_jbstat,12,13) | inlist(Furl_Change_F1,2,3,4,6,8))		// SEE NOTES 1., 2. AND 3.
-//  replace Job_Attraction_F2=cjbatt if cjob==1 & inlist(Furl_Change_F1,1,5,7)											// SEE NOTES 4., 5. AND 6.
 
 *Spells 3+ Job Attraction
 ds nextstat*																		// MODIFIED CODE.
@@ -1581,32 +1578,7 @@ forval i=2/`spells'{
 				gen Job_Attraction_orig`j'=jbatt`i' if currjob`i'==1				// LW ORIGINAL CODE, THOUGH VARIABLE RENAMED WITH SUFFIX _orig.
 	gen Job_Attraction`j'=jbatt`i' if currjob`i'==1
 	gen Job_Attraction_F`j'=jbatt`i' if currjob`i'==1
-//	gen Job_Attraction_F`j'=jbatt`i' if currjob`i'==1 & (!inlist(ff_jbstat,12,13) | inlist(Furl_Change_F1,2,3,4,6,8))
-//	replace Job_Attraction_F`j'=jbatt`k' if currjob`k'==1 & Furl_Change_F1==1
 	}
-/*
-// NOTES TO Job_Attraction_F*:
-HEREHEREHERE NOTES NEED MODIFICATION IF SIMPLIFIED CODING ABOVE IS RETAINED (AND OLD CODING NEEDS DELETION).
-1. Care is required in the use of Job_Attraction_F*: The same Job_Attraction value is replicated across spells of furlough and same job after the end of the initial furlough spell. This is to allow researchers flexibility in whether to apply the job attraction value to the furlough spell or the post-furlough spell in the same job. inlist(Furl_Change_F1,1,5,7) indicates same job. inlist(Furl_Change_F1,2,3,4,8) indicates the possibility of a different job. See label furl_change, copied below, and see code defining Furl_Change_F1 above.
-2. inlist(Furl_Change_F1,2,3,4,6) implies spell 1 involves furlough end and possibly a new employment/non-employment status, so these cases are treated the same as cases with non-furlough Index Status/Status0/ff_jbstat.
-3. Job continues post-furlough for Furl_Change_F1==8 cases, but due to their answers and route through the questionnaire, the variables relating to their spells are the same as inlist(Furl_Change_F1,2,3,4,6).
-4. inlist(Furl_Change_F1,1,5,7) indicates the individual reports the same job.
-5. inlist(Furl_Change_F1,5,7) definitions reflect a lack of intra-wave information, so these cases are excluded from Spells 3+ Job Attraction calculation.
-6. Furl_Change_F1==1 cases effectively have an extra spell due to furlough and continuation of same job post-furlough being treated as 2 separate spells in _F variables.
-MEMO:
-. label list furl_change
-furl_change:
-           0 0. Still furloughed
-           1 1. Furlough ends, job continues
-           2 2. Furlough & job end, same end date
-           3 3. Furlough & job end, End_*0=furlough end date though job ends first
-           4 4. Job end info only
-           5 5. Furlough ends, followed by further furlough spell in same job
-           6 6. Furlough ends to non-employment
-           7 7. No info on furlough end, same job, next wave status not furlough
-           8 8. Furlough ends, job continues
-// browse pidp Wave Status0* Status1* Status2* cjbatt jbatt* Furl_Change_F1 Job_Change* if !missing(cjbatt) & (inlist(ff_jbstat,12,13) | inlist(jbstat,12,13))				
-*/
 
 keep pidp Has_Activity* Status* Source_Variable* End* Furl* Job* /*						// Furl* ADDED.
 	*/ Wave Route3_Type
@@ -1650,8 +1622,115 @@ do "${do_fld}/UKHLS Initial Job_JCS.do" 												// NOTE: THIS .do FILE IS RU
 
 
 /*
-// NOTE: THE 3 STATUS/SPELL MEASURES ARE DEALT WITH SEPARATELY FROM HERE ONWARDS.
+// NOTE: THE FOLLOWING CODE GENERATES DIFFERENT UKHLS Annual Histories DEPENDING ON THE CHOICE OF global furlough_choice.
 */
+prog_reopenfile "${dta_fld}/UKHLS Annual History - Collected.dta"
+drop End_D*
+
+
+if "$furlough_choice"=="nofurlough" | ("$furlough_choice"!="furlough" & "$furlough_choice"!="noadjust") {
+		drop *_orig *_F
+	}
+if "$furlough_choice"=="furlough" {
+		drop *_orig
+		drop End_Ind Status Source_Variable Job_Change End_M End_Y Job_Hours Job_Attraction
+		rename *_F *
+	}
+if "$furlough_choice"=="noadjust" {
+		drop End_Ind Status Source_Variable Job_Change End_M End_Y Job_Hours Job_Attraction 
+		drop *_F
+		rename *_orig *
+	}
+
+merge 1:1 pidp Wave Spell using "${dta_fld}/UKHLS Annual History End Reasons", keep(match master) nogen
+recode End_Reason* (missing=.i) if End_Ind==0
+recode End_Reason* (missing=.m) /*
+	*/ if (End_Ind==1 | End_Ind==.m) & inlist(Status,1,2,100)
+recode End_Reason* (*=.i) if !inlist(Status,1,2,100)
+
+replace Job_Attraction=.m if inlist(Status,1,2,100) & missing(Job_Attraction)
+replace Job_Attraction=.i if !inlist(Status,1,2,100)
+foreach i of numlist 1/15 97{
+	gen Job_Attraction`i'=cond(Job_Attraction==.i,.i,cond(Job_Attraction==`i',1,.m))
+	}
+drop Job_Attraction
+
+gen Source=substr(subinstr("`c(alpha)'"," ","",.),Wave-18,1)+"_indresp"
+
+by pidp Wave (Spell), sort: replace Spell=_n
+	
+
+/*
+3. Clean annual history dataset
+*/
+	
+if "$furlough_choice"!="furlough" {
+	do "${do_fld}/Clean Dependent Annual History_JCS.do"							// ALTERED .DO FILE.
+	*11. Run Common Code															// THIS CODE MOVED HERE FROM THE END OF "Clean Dependent Annual History_JCS.do".
+	do "${do_fld}/Clean Work History_JCS.do"										// ALTERED .DO FILE.
+	}
+if "$furlough_choice"=="furlough" {
+	gen F_Ind=1																		// CREATE VARIABLE TO DISTINGUISH _F VARIANT DURING DATA CLEANING.
+	do "${do_fld}/Clean Dependent Annual History_JCS.do"							// BOTH FILES ALTERED TO ENSURE CORRECT TREATMENT OF FURLOUGH SPELLS IF THESE ARE CONSIDERED.
+	*11. Run Common Code
+	do "${do_fld}/Clean Work History_JCS.do"		
+	drop F_Ind
+	}
+
+prog_imputemissingspells
+
+
+save "${dta_fld}/UKHLS Annual History", replace
+	
+
+/*
+4. Merge with Initial Job Information
+*/
+prog_reopenfile "${dta_fld}/UKHLS Initial Job"										// OPENS "UKHLS Initial Job.dta", THE OUTPUT OF "UKHLS Initial Job_JCS.do".
+
+// ADDED CODE FOR UKHLS Annual History RECORDING FURLOUGH AND UNDERLYING EMPLOYMENT STATUSES.
+if "$furlough_choice"=="nofurlough" {
+	replace Status=1 if inlist(jbstat,12,13) & jbsemp==2							// REPLACES FURLOUGH WITH UNDERLYING STATUS.
+	replace Status=2 if inlist(jbstat,12,13) & jbsemp==1
+	replace Status=100 if inlist(jbstat,12,13) & missing(jbsemp)
+	}
+if "$furlough_choice"=="furlough" {
+	replace Start_MY=tm(2020mar) if Start_MY<tm(2020mar) & inlist(Status,12,13)		// IMPUTE PLAUSIBLE FURLOUGH START AND END DATES.
+	replace End_MY=tm(2021sep) if End_MY>tm(2021sep) & inlist(Status,12,13)
+	replace Status=100+Status if inlist(Status,12,13) & jbsemp==2					// CODE FURLOUGH Status FOR furlough OPTION.
+	replace Status=200+Status if inlist(Status,12,13) & jbsemp==1	
+	replace Status=10000+Status if inlist(Status,12,13) & missing(jbsemp)
+	}
+	
+append using "${dta_fld}/UKHLS Annual History", gen(XX)
+by pidp Wave, sort: gen YY=_N
+drop if XX==0 & YY>1
+by pidp (Wave), sort: egen ZZ=min(Wave)
+drop if XX==0 & Wave>ZZ		// DROP IF INITIAL JOB IS AFTER UKHLS ANNUAL HISTORY.
+drop XX YY ZZ
+
+prog_waveoverlap			// TRUNCATES SPELLS WHICH OVERLAP WITH RESPONSES FROM A PREVIOUS WAVE
+prog_collapsespells			// COLLAPSES SIMILAR NON-EMPLOYMENT SPELLS INTO CONTINUOUS SPELL
+
+prog_format
+save "${dta_fld}/UKHLS Annual History", replace
+
+
+/*
+5.	Delete Unused Files
+*/
+rm "${dta_fld}/UKHLS Initial Job.dta" 
+rm "${dta_fld}/UKHLS Annual History - Collected.dta"
+rm "${dta_fld}/UKHLS Annual History - Raw.dta"
+rm "${dta_fld}/UKHLS Annual History End Reasons.dta"
+
+/*
+========================================================================================================
+
+
+
+
+
 
 foreach X in "_orig" "" "_F" {
 
@@ -1758,3 +1837,4 @@ rm "${dta_fld}/UKHLS Initial Job.dta"
 rm "${dta_fld}/UKHLS Annual History - Collected.dta"
 rm "${dta_fld}/UKHLS Annual History - Raw.dta"
 rm "${dta_fld}/UKHLS Annual History End Reasons.dta"
+*/
