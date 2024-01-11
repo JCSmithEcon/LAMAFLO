@@ -6,6 +6,8 @@ Clean Non-Dependent Annual History.DO
 	JOBHIST FILES FROM WAVES 1-15 OF THE BHPS (NON-DEPENDENT INTERVIEWING).
 
 	THIS FILE IS ESSENTIALLY UNCHANGED FROM LW (2020).
+	
+	* LW VERSION USES THE SAME CODE.
 
 ********************************************************************************
 */

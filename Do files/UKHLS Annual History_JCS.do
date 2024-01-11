@@ -6,11 +6,11 @@ UKHLS ANNUAL HISTORY.DO
 	CURRENT AND PRECEEDING FULL OR TELPHONE INTERVIEWS.
 	
 	UPDATES:
-	* 3 VARIANTS ARE CREATED THAT DIFFER IN THEIR TREATMENT OF FURLOUGH SPELLS (Status "12. Furlough" AND "13. Temporarily laid off/short time working").
+	* WITHIN THIS FILE, 3 VARIANTS ARE CREATED THAT DIFFER IN THEIR TREATMENT OF FURLOUGH SPELLS (Status "12. Furlough" AND "13. Temporarily laid off/short time working").
 	* _orig IS THE ORIGINAL CODING. THIS TREATS A FURLOUGH SPELL AS A NEW SPELL, AND TREATS FURLOUGH SPELLS LIKE ANY OTHER NON-EMPLOYMENT SPELL.
 	* THE NEW UNSUFFIXED CODING FOCUSES ON THE UNDERLYING EMPLOYMENT STATUS, EFFECTIVELY IGNORING FURLOUGH STATUS.
 	* _F TREATS A FURLOUGH SPELL AS A NEW SPELL BUT USES NEW Status CODING THAT REFLECTS BOTH THE UNDERLYING EMPLOYMENT SPELL AND FURLOUGH STATUS. 
-		
+	*
 	THERE ARE CHANGES TO VARIOUS VARIABLES RELATING TO NEW Statuses FURLOUGHED / TEMPORARY LAYOFF OR SHORT-TIME WORKING:
 	* STENDREASX Waves 11 [29] onward add STENDREAS12 =1 if Furloughed
 	* JBSTAT UKHLS Waves 11 [29] onward add options for JBSTAT: Added new response option codes 12 Furloughed and 13 Temporarily laid off/short time working
@@ -24,8 +24,10 @@ UKHLS ANNUAL HISTORY.DO
 
 	* From Wave 7 [25] onwards, each reason is recorded in separate variables. (ORIGINAL LW CODE: From Wave 4 [22] onwards, each reason recorded in separate variables.)
 
-	* A SMALL AMOUNT OF CODE FROM THE END OF "Clean Dependent Annual History_JCS.do" IS TRANSFERRED INTO LOOPS AT THE END OF THIS FILE.
+	* A SMALL AMOUNT OF CODE FROM THE END OF "Clean Dependent Annual History_JCS.do" IS TRANSFERRED INTO LOOPS AT THE END THIS .DO FILE.
 	
+	* LW VERSION USES THE SAME CODE.
+
 ********************************************************************************
 */
 
@@ -64,7 +66,7 @@ save "${dta_fld}/UKHLS Annual History - Raw", replace
 // stendreas12 IS OUT OF ORDER, AND ONLY AVAILABLE, IN W12 SO stend* IS NAMED SEPARATELY, OUTSIDE THE INITIAL LIST.
 // USING stend* ALSO COLLECTS stendoth_code, AVAILABLE IN WAVE 8 ONWARDS, WHICH CAN BE USED IN A SIMILAR WAY TO stendreas AS IT IS CODED LIKE stendreas FOR stendoth_code VALUES 1-11. ALL stendoth_code VALUES ABOVE 11 CAN BE RECODED 97 "Other reason" EXCEPT FOR THE FOLLOWING: IN WAVE 12, l_stendoth_code==24 is "End of contract" WHICH COULD BE RECODED =5 "Temporary job ended". THIS VALUE DOES NOT APPEAR IN ANY PRIOR WAVES. WHEN stendoth_code IS USED TO RECODE stendreas97, THOSE CASES ARE EXTRACTED FROM AND NOT ALSO INCLUDED IN stendreas97.
 
- 	
+	
 *ii. Drop participants who do not have annual employment histories in a given wave.
 	* Create flags for how individuals are routed through annual history modules.
 
@@ -261,51 +263,51 @@ The construction of Status_F0 matches that of Status0, but the values differ. Th
 // TABULATIONS OF THE 3 Status*0 VARIABLES:	
 tab Status_orig0 Status0, mis
 Status_ori |                                                                          Status0
-        g0 |         1          2          3          4          5          6          7          8          9         10         11         97        100          . |     Total
+		g0 |         1          2          3          4          5          6          7          8          9         10         11         97        100          . |     Total
 -----------+----------------------------------------------------------------------------------------------------------------------------------------------------------+----------
-         1 |    30,239          0          0          0          0          0          0          0          0          0          0          0          0          0 |    30,239 
-         2 |         0    190,793          0          0          0          0          0          0          0          0          0          0          0          0 |   190,793 
-         3 |         0          0     18,070          0          0          0          0          0          0          0          0          0          0          0 |    18,070 
-         4 |         0          0          0     97,531          0          0          0          0          0          0          0          0          0          0 |    97,531 
-         5 |         0          0          0          0      2,382          0          0          0          0          0          0          0          0          0 |     2,382 
-         6 |         0          0          0          0          0     22,131          0          0          0          0          0          0          0          0 |    22,131 
-         7 |         0          0          0          0          0          0     24,119          0          0          0          0          0          0          0 |    24,119 
-         8 |         0          0          0          0          0          0          0     13,906          0          0          0          0          0          0 |    13,906 
-         9 |         0          0          0          0          0          0          0          0        297          0          0          0          0          0 |       297 
-        10 |         0          0          0          0          0          0          0          0          0        268          0          0          0          0 |       268 
-        11 |         0          0          0          0          0          0          0          0          0          0        459          0          0          0 |       459 
-        12 |         5         87          0          0          0          0          0          0          0          0          0          0         17          0 |       109 
-        13 |         3         12          0          0          0          0          0          0          0          0          0          0          6          0 |        21 
-        97 |         0          0          0          0          0          0          0          0          0          0          0      2,125          0          0 |     2,125 
-        .m |         0          0          0          0          0          0          0          0          0          0          0          0          0         93 |        93 
+		 1 |    30,239          0          0          0          0          0          0          0          0          0          0          0          0          0 |    30,239 
+		 2 |         0    190,793          0          0          0          0          0          0          0          0          0          0          0          0 |   190,793 
+		 3 |         0          0     18,070          0          0          0          0          0          0          0          0          0          0          0 |    18,070 
+		 4 |         0          0          0     97,531          0          0          0          0          0          0          0          0          0          0 |    97,531 
+		 5 |         0          0          0          0      2,382          0          0          0          0          0          0          0          0          0 |     2,382 
+		 6 |         0          0          0          0          0     22,131          0          0          0          0          0          0          0          0 |    22,131 
+		 7 |         0          0          0          0          0          0     24,119          0          0          0          0          0          0          0 |    24,119 
+		 8 |         0          0          0          0          0          0          0     13,906          0          0          0          0          0          0 |    13,906 
+		 9 |         0          0          0          0          0          0          0          0        297          0          0          0          0          0 |       297 
+		10 |         0          0          0          0          0          0          0          0          0        268          0          0          0          0 |       268 
+		11 |         0          0          0          0          0          0          0          0          0          0        459          0          0          0 |       459 
+		12 |         5         87          0          0          0          0          0          0          0          0          0          0         17          0 |       109 
+		13 |         3         12          0          0          0          0          0          0          0          0          0          0          6          0 |        21 
+		97 |         0          0          0          0          0          0          0          0          0          0          0      2,125          0          0 |     2,125 
+		.m |         0          0          0          0          0          0          0          0          0          0          0          0          0         93 |        93 
 -----------+----------------------------------------------------------------------------------------------------------------------------------------------------------+----------
-     Total |    30,247    190,892     18,070     97,531      2,382     22,131     24,119     13,906        297        268        459      2,125         23         93 |   402,543 
+	 Total |    30,247    190,892     18,070     97,531      2,382     22,131     24,119     13,906        297        268        459      2,125         23         93 |   402,543 
 
 tab Status_F0 Status0, mis
-           |                                                                          Status0
+		   |                                                                          Status0
  Status_F0 |         1          2          3          4          5          6          7          8          9         10         11         97        100          . |     Total
 -----------+----------------------------------------------------------------------------------------------------------------------------------------------------------+----------
-         1 |    30,239          0          0          0          0          0          0          0          0          0          0          0          0          0 |    30,239 
-         2 |         0    190,793          0          0          0          0          0          0          0          0          0          0          0          0 |   190,793 
-         3 |         0          0     18,070          0          0          0          0          0          0          0          0          0          0          0 |    18,070 
-         4 |         0          0          0     97,531          0          0          0          0          0          0          0          0          0          0 |    97,531 
-         5 |         0          0          0          0      2,382          0          0          0          0          0          0          0          0          0 |     2,382 
-         6 |         0          0          0          0          0     22,131          0          0          0          0          0          0          0          0 |    22,131 
-         7 |         0          0          0          0          0          0     24,119          0          0          0          0          0          0          0 |    24,119 
-         8 |         0          0          0          0          0          0          0     13,906          0          0          0          0          0          0 |    13,906 
-         9 |         0          0          0          0          0          0          0          0        297          0          0          0          0          0 |       297 
-        10 |         0          0          0          0          0          0          0          0          0        268          0          0          0          0 |       268 
-        11 |         0          0          0          0          0          0          0          0          0          0        459          0          0          0 |       459 
-        97 |         0          0          0          0          0          0          0          0          0          0          0      2,125          0          0 |     2,125 
-       112 |         5          0          0          0          0          0          0          0          0          0          0          0          0          0 |         5 
-       113 |         3          0          0          0          0          0          0          0          0          0          0          0          0          0 |         3 
-       212 |         0         87          0          0          0          0          0          0          0          0          0          0          0          0 |        87 
-       213 |         0         12          0          0          0          0          0          0          0          0          0          0          0          0 |        12 
-     10012 |         0          0          0          0          0          0          0          0          0          0          0          0         17          0 |        17 
-     10013 |         0          0          0          0          0          0          0          0          0          0          0          0          6          0 |         6 
-         . |         0          0          0          0          0          0          0          0          0          0          0          0          0         93 |        93 
+		 1 |    30,239          0          0          0          0          0          0          0          0          0          0          0          0          0 |    30,239 
+		 2 |         0    190,793          0          0          0          0          0          0          0          0          0          0          0          0 |   190,793 
+		 3 |         0          0     18,070          0          0          0          0          0          0          0          0          0          0          0 |    18,070 
+		 4 |         0          0          0     97,531          0          0          0          0          0          0          0          0          0          0 |    97,531 
+		 5 |         0          0          0          0      2,382          0          0          0          0          0          0          0          0          0 |     2,382 
+		 6 |         0          0          0          0          0     22,131          0          0          0          0          0          0          0          0 |    22,131 
+		 7 |         0          0          0          0          0          0     24,119          0          0          0          0          0          0          0 |    24,119 
+		 8 |         0          0          0          0          0          0          0     13,906          0          0          0          0          0          0 |    13,906 
+		 9 |         0          0          0          0          0          0          0          0        297          0          0          0          0          0 |       297 
+		10 |         0          0          0          0          0          0          0          0          0        268          0          0          0          0 |       268 
+		11 |         0          0          0          0          0          0          0          0          0          0        459          0          0          0 |       459 
+		97 |         0          0          0          0          0          0          0          0          0          0          0      2,125          0          0 |     2,125 
+	   112 |         5          0          0          0          0          0          0          0          0          0          0          0          0          0 |         5 
+	   113 |         3          0          0          0          0          0          0          0          0          0          0          0          0          0 |         3 
+	   212 |         0         87          0          0          0          0          0          0          0          0          0          0          0          0 |        87 
+	   213 |         0         12          0          0          0          0          0          0          0          0          0          0          0          0 |        12 
+	 10012 |         0          0          0          0          0          0          0          0          0          0          0          0         17          0 |        17 
+	 10013 |         0          0          0          0          0          0          0          0          0          0          0          0          6          0 |         6 
+		 . |         0          0          0          0          0          0          0          0          0          0          0          0          0         93 |        93 
 -----------+----------------------------------------------------------------------------------------------------------------------------------------------------------+----------
-     Total |    30,247    190,892     18,070     97,531      2,382     22,131     24,119     13,906        297        268        459      2,125         23         93 |   402,543 
+	 Total |    30,247    190,892     18,070     97,531      2,382     22,131     24,119     13,906        297        268        459      2,125         23         93 |   402,543 
 */
 
 
@@ -382,23 +384,23 @@ End_Ind0 and End_Ind_orig0 differ in (57) cases where empchk==2 & inlist(ff_jbst
 
 tab End_Ind_orig0 End_Ind0, mis
 End_Ind_or |             End_Ind0
-       ig0 |         0          1         .m |     Total
+	   ig0 |         0          1         .m |     Total
 -----------+---------------------------------+----------
-         0 |   343,372          0          0 |   343,372 
-         1 |        57     58,042          3 |    58,102 
-        .m |         0          0      1,069 |     1,069 
+		 0 |   343,372          0          0 |   343,372 
+		 1 |        57     58,042          3 |    58,102 
+		.m |         0          0      1,069 |     1,069 
 -----------+---------------------------------+----------
-     Total |   343,429     58,042      1,072 |   402,543
+	 Total |   343,429     58,042      1,072 |   402,543
 . browse if End_Ind_orig0!=End_Ind0
 	 
 tab End_Ind_F0 End_Ind0
-           |       End_Ind0
+		   |       End_Ind0
 End_Ind_F0 |         0          1 |     Total
 -----------+----------------------+----------
-         0 |   343,372          0 |   343,372 
-         1 |        57     58,042 |    58,099 
+		 0 |   343,372          0 |   343,372 
+		 1 |        57     58,042 |    58,099 
 -----------+----------------------+----------
-     Total |   343,429     58,042 |   401,471 
+	 Total |   343,429     58,042 |   401,471 
 
 // FOR INFO: The following code can be used to browse to visually explore the variables:
 sort ff_jbstat jbstat
@@ -511,17 +513,17 @@ When inlist(ff_jbstat,12,13), empstend* dates [are taken to] relate to the end o
 (a) nxtst==2: If furlough/temp layoff end coincides with end of employment status (indicated by nxtst==2 - next spell non-employment), the empstend* dates also apply to end of employment status. 
 (b) nxtst==1: If employment continues after furlough/temp layoff ends, nxtst==1. The underlying employment status ends if (jbsamr==2 | samejob==2), date jbend*.
 compare empstend jbend if inlist(ff_jbstat,12,13) & nxtst==1 & (jbsamr==2 | samejob==2)	// NOTE: The condition nxtst==1 is unnecessary as it is implied by (jbsamr==2 | samejob==2).
-                                        ---------- Difference ----------
-                            Count       Minimum      Average     Maximum
+										---------- Difference ----------
+							Count       Minimum      Average     Maximum
 ------------------------------------------------------------------------
 empstend<jbend                  5            -5         -3.2          -1
 empstend=jbend                  5
 empstend>jbend                  4             1         3.25           6
-                       ----------
+					   ----------
 Jointly defined                14            -5    -.2142857           6
 empstend missing only           3
 Jointly missing                 3
-                       ----------
+					   ----------
 Total                          20
 
 // COMMENTS ON _F VARIABLES:
@@ -589,8 +591,8 @@ Spell 0 is furlough. The statement nxtst==1 is interpreted as "furlough ends". M
 
 // TABULATION:
 tab Furl_Change_F1 End_Ind_F0
-                      |      End_Ind_F0
-       Furl_Change_F1 |         0          1 |     Total
+					  |      End_Ind_F0
+	   Furl_Change_F1 |         0          1 |     Total
 ----------------------+----------------------+----------
   0. Still furloughed |         6          0 |         6 
 1. Furlough ends, job |         0         63 |        63 
@@ -602,7 +604,7 @@ tab Furl_Change_F1 End_Ind_F0
 7. No info on furloug |         9          0 |         9 
 8. Furlough ends, job |         0          2 |         2 
 ----------------------+----------------------+----------
-                Total |        15        104 |       119 
+				Total |        15        104 |       119 
 */
 
 
@@ -978,8 +980,8 @@ For inlist(ff_jbstat,12,13) and _F:
 - Job ends if inlist(Furl_Change_F1,2,3,4,6,8) 
 
 tab Furl_Change_F1 Job_Change_F1
-                      |          Job_Change_F1
-       Furl_Change_F1 |         1          2          3 |     Total
+					  |          Job_Change_F1
+	   Furl_Change_F1 |         1          2          3 |     Total
 ----------------------+---------------------------------+----------
 1. Furlough ends, job |        63          0          0 |        63 
 2. Furlough & job end |         0          0          5 |         5 
@@ -989,12 +991,12 @@ tab Furl_Change_F1 Job_Change_F1
 7. No info on furloug |         9          0          0 |         9 
 8. Furlough ends, job |         0          0          2 |         2 
 ----------------------+---------------------------------+----------
-                Total |        75          2         17 |        94
+				Total |        75          2         17 |        94
 
 // Job_Change_orig1 RECORDS INDIVIDUALS COMING OFF FURLOUGH AS "3. New employer" BECAUSE nxtst==1.
 tab Furl_Change_F1 Job_Change_orig1, mis
-                      |              Job_Change_orig1
-       Furl_Change_F1 |         2          3          .         .i |     Total
+					  |              Job_Change_orig1
+	   Furl_Change_F1 |         2          3          .         .i |     Total
 ----------------------+--------------------------------------------+----------
   0. Still furloughed |         0          0          6          0 |         6 
 1. Furlough ends, job |         0         63          0          0 |        63 
@@ -1005,9 +1007,9 @@ tab Furl_Change_F1 Job_Change_orig1, mis
 6. Furlough ends to n |         0          0          0         19 |        19 
 7. No info on furloug |         0          0          9          0 |         9 
 8. Furlough ends, job |         0          2          0          0 |         2 
-                   .i |     6,514     30,928    344,281     20,701 |   402,424 
+				   .i |     6,514     30,928    344,281     20,701 |   402,424 
 ----------------------+--------------------------------------------+----------
-                Total |     6,514     31,013    344,296     20,720 |   402,543 
+				Total |     6,514     31,013    344,296     20,720 |   402,543 
 */
 
 
@@ -1724,117 +1726,4 @@ rm "${dta_fld}/UKHLS Annual History - Collected.dta"
 rm "${dta_fld}/UKHLS Annual History - Raw.dta"
 rm "${dta_fld}/UKHLS Annual History End Reasons.dta"
 
-/*
-========================================================================================================
 
-
-
-
-
-
-foreach X in "_orig" "" "_F" {
-
-	prog_reopenfile "${dta_fld}/UKHLS Annual History - Collected.dta"
-	drop End_D*
-
-	if "`X'"=="_orig" {
-		drop End_Ind Status Source_Variable Job_Change End_M End_Y Job_Hours Job_Attraction 
-		drop *_F
-		rename *_orig *
-		}
-
-	if "`X'"=="" {
-		drop *_orig *_F
-		}
-	if "`X'"=="_F" {
-		drop *_orig
-		drop End_Ind Status Source_Variable Job_Change End_M End_Y Job_Hours Job_Attraction
-		rename *_F *
-		}
-	
-	merge 1:1 pidp Wave Spell using "${dta_fld}/UKHLS Annual History End Reasons", keep(match master) nogen
-	recode End_Reason* (missing=.i) if End_Ind==0
-	recode End_Reason* (missing=.m) /*
-		*/ if (End_Ind==1 | End_Ind==.m) & inlist(Status,1,2,100)
-	recode End_Reason* (*=.i) if !inlist(Status,1,2,100)
-
-	replace Job_Attraction=.m if inlist(Status,1,2,100) & missing(Job_Attraction)
-	replace Job_Attraction=.i if !inlist(Status,1,2,100)
-	foreach i of numlist 1/15 97{
-		gen Job_Attraction`i'=cond(Job_Attraction==.i,.i,cond(Job_Attraction==`i',1,.m))
-		}
-	drop Job_Attraction
-
-	gen Source=substr(subinstr("`c(alpha)'"," ","",.),Wave-18,1)+"_indresp"
-
-	by pidp Wave (Spell), sort: replace Spell=_n
-	
-	/*
-	3. Clean annual history dataset
-	*/
-	
-	if "`X'"=="_orig" {
-		do "${do_fld}/Clean Dependent Annual History_JCS.do"							// ALTERED .DO FILE.
-		*11. Run Common Code															// THIS CODE MOVED HERE FROM THE END OF "Clean Dependent Annual History_JCS.do".
-		do "${do_fld}/Clean Work History_JCS.do"										// ALTERED .DO FILE.
-	}
-	if "`X'"=="_F" {
-		gen F_Ind=1																		// CREATE VARIABLE TO DISTINGUISH _F VARIANT DURING DATA CLEANING.
-		do "${do_fld}/Clean Dependent Annual History_JCS.do"							// BOTH FILES ALTERED TO ENSURE CORRECT TREATMENT OF FURLOUGH SPELLS IF THESE ARE CONSIDERED.
-		*11. Run Common Code
-		do "${do_fld}/Clean Work History_JCS.do"		
-		drop F_Ind
-		}
-	if "`X'"=="" {
-		do "${do_fld}/Clean Dependent Annual History_JCS.do"
-		*11. Run Common Code
-		do "${do_fld}/Clean Work History_JCS.do"										
-	}
-	prog_imputemissingspells
-
-
-	save "${dta_fld}/UKHLS Annual History`X'", replace
-	
-
-	/*
-	4. Merge with Initial Job Information
-	*/
-	prog_reopenfile "${dta_fld}/UKHLS Initial Job"										// OPENS "UKHLS Initial Job.dta", THE OUTPUT OF "UKHLS Initial Job_JCS.do".
-
-	// ADDED CODE FOR UKHLS Annual History RECORDING FURLOUGH AND UNDERLYING EMPLOYMENT STATUSES.
-	if "`X'"=="" {
-		replace Status=1 if inlist(jbstat,12,13) & jbsemp==2							// REPLACES FURLOUGH WITH UNDERLYING STATUS.
-		replace Status=2 if inlist(jbstat,12,13) & jbsemp==1
-		replace Status=100 if inlist(jbstat,12,13) & missing(jbsemp)
-		}
-	if "`X'"=="_F" {
-		replace Start_MY=tm(2020mar) if Start_MY<tm(2020mar) & inlist(Status,12,13)		// IMPUTE PLAUSIBLE FURLOUGH START AND END DATES.
-		replace End_MY=tm(2021sep) if End_MY>tm(2021sep) & inlist(Status,12,13)
-		replace Status=100+Status if inlist(Status,12,13) & jbsemp==2						// CODE Status AS UKHLS Annual History
-		replace Status=200+Status if inlist(Status,12,13) & jbsemp==1	
-		replace Status=10000+Status if inlist(Status,12,13) & missing(jbsemp)
-		}
-		
-	append using "${dta_fld}/UKHLS Annual History`X'", gen(XX)
-	by pidp Wave, sort: gen YY=_N
-	drop if XX==0 & YY>1
-	by pidp (Wave), sort: egen ZZ=min(Wave)
-	drop if XX==0 & Wave>ZZ		// DROP IF INITIAL JOB IS AFTER UKHLS ANNUAL HISTORY.
-	drop XX YY ZZ
-
-	prog_waveoverlap			// TRUNCATES SPELLS WHICH OVERLAP WITH RESPONSES FROM A PREVIOUS WAVE
-	prog_collapsespells			// COLLAPSES SIMILAR NON-EMPLOYMENT SPELLS INTO CONTINUOUS SPELL
-
-	prog_format
-	save "${dta_fld}/UKHLS Annual History`X'", replace
-
-	}
-
-/*
-5.	Delete Unused Files
-*/
-rm "${dta_fld}/UKHLS Initial Job.dta" 
-rm "${dta_fld}/UKHLS Annual History - Collected.dta"
-rm "${dta_fld}/UKHLS Annual History - Raw.dta"
-rm "${dta_fld}/UKHLS Annual History End Reasons.dta"
-*/

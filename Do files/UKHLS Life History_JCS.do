@@ -6,6 +6,8 @@ UKHLS LIFE HISTORY.DO
 	FILES FROM UNDERSTANDING SOCIETY.
 	
 	THIS FILE IS ESSENTIALLY UNCHANGED FROM LW (2020).
+	
+	* LW VERSION USES THE SAME CODE.
 
 ********************************************************************************
 */

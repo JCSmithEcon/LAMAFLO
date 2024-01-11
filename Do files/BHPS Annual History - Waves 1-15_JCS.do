@@ -6,6 +6,8 @@ BHPS ANNUAL HISTORY - WAVES 1-15.DO
 	(I.E. BEFORE DEPENDENT INTERVIEWING WAS INTRODUCED)
 
 	THIS FILE IS ESSENTIALLY UNCHANGED FROM LW (2020).
+	
+	* LW VERSION USES THE SAME CODE.
 		
 ********************************************************************************
 */

@@ -1,3 +1,6 @@
+* UPDATED PROGRAMS THAT MUST BE RUN INSTEAD OF ORIGINAL LW CODE TO DEAL WITH FURLOUGH: prog_labels, prog_lastspellmissing, prog_format, prog_attrend.
+* UPDATED PROGRAMS THAT DEFAULT TO LW ORIGINAL CODE IF DEFAULT OPTIONS FOR GLOBALS ARE NOT CHOSEN: prog_implausibledates, prog_nonchron, prog_assignwinter.
+
 // prog_recodemissing RECODES MISSING VALUES TO STATA MISSING VALUE CODES.
 capture program drop prog_recodemissing
 program prog_recodemissing
@@ -101,7 +104,7 @@ program prog_afterint
 	drop XX YY
 end
 
-// prog_assignwinter ASSIGNS LATE(Dec)/EARLY(Jan-Feb) WINTER WHERE THAT SPLIT IS NOT IN THE DATA. LIAM WRIGHT'S ORIGINAL CODE LED TO THE DROPPING OF OBSERVATIONS WHERE THERE WAS NO INFORMATION ON PREVIOUS OR LATER SPELLS TO BE ABLE TO LOGICALLY ASSIGN EARLY/LATE WINTER. THIS REVISED CODE RETAINS THOSE OBSERVATIONS USING THE CONVENTION THAT WINTER IS ASSIGNED TO JANUARY, CODED HERE AS EARLY WINTER (Jan-Feb) (WHERE THERE IS NO INFORMATION TO INDICATE WHETHER IT IS EARLY OR LATE FEBRUARY).
+// prog_assignwinter IS USED IN "BHPS Life History.do". IT ASSIGNS LATE(Dec)/EARLY(Jan-Feb) WINTER WHERE THAT SPLIT IS NOT IN THE DATA. LIAM WRIGHT'S ORIGINAL CODE LEADS TO THE DROPPING OF OBSERVATIONS WHERE THERE IS NO INFORMATION ON PREVIOUS OR LATER SPELLS TO BE ABLE TO LOGICALLY ASSIGN EARLY/LATE WINTER. THIS REVISED CODE RETAINS THOSE OBSERVATIONS USING THE CONVENTION THAT WINTER IS ASSIGNED TO JANUARY, CODED HERE AS EARLY WINTER (Jan-Feb) (WHERE THERE IS NO INFORMATION TO INDICATE WHETHER IT IS EARLY OR LATE FEBRUARY).
 capture program drop prog_assignwinter
 program prog_assignwinter
 	gen Reverse=-Spell
@@ -115,13 +118,14 @@ program prog_assignwinter
 	replace Start_SY=ym(Start_Y,1) if Winter==1 & /*
 		*/ missing(XX) & !missing(YY)
 	replace Start_SY=ym(Start_Y,1) if Winter==1 & /*
-		*/ missing(XX) & missing(YY)		// JCS: THIS ADDED LINE ASSIGNS JAN_FEB (AS [JANUARY] IS CONVENTIONAL) IN CASES WHERE SEASON IS KNOWN TO BE WINTER BUT THERE IS NO INFORMATION FROM PREVIOUS OR LATER SPELLS TO BE ABLE TO ASSIGN EARLY OR LATE WINTER. THIS ADDS MANY (640 USING WAVES 2, 11 AND 12 bb/bk/bl_lifemst) SEASONAL SPELL START DATES.
+		*/ missing(XX) & missing(YY)		// THIS ADDED LINE ASSIGNS JAN_FEB (AS [JANUARY] IS CONVENTIONAL) IN CASES WHERE SEASON IS KNOWN TO BE WINTER BUT THERE IS NO INFORMATION FROM PREVIOUS OR LATER SPELLS TO BE ABLE TO ASSIGN EARLY OR LATE WINTER. THIS ADDS MANY (640 USING WAVES 2, 11 AND 12 bb/bk/bl_lifemst) SEASONAL SPELL START DATES.
 	drop XX YY Winter Reverse
 end
-/*
+//
 // LIAM WRIGHT ORIGINAL prog_assignwinter:
-capture program drop prog_assignwinter
-program prog_assignwinter
+//
+capture program drop prog_assignwinter_orig
+program prog_assignwinter_orig
 	gen Reverse=-Spell
 	by pidp Wave Start_Y (Spell), sort: gen XX=Start_SY[_n-1]
 	by pidp Wave Start_Y (Spell), sort: replace XX=XX[_n-1] if missing(XX)
@@ -134,10 +138,8 @@ program prog_assignwinter
 		*/ missing(XX) & !missing(YY)
 	drop XX YY Winter Reverse
 end
-*/
 
-// prog_implausibledates IS REVISED TO GIVE THE OPTION OF DROPPING JUST THE IMPLAUSIBLE OBSERVATIONS _OR_ ALL pidp-Wave OBSERVATIONS WHERE START/END DATE IS BEFORE BIRTH. LIAM WRIGHT'S ORIGINAL CODE DROPS ALL pidp-Wave OBSERVATIONS WHERE NON-EDUCATION START/END DATE IS BEFORE AGE 12. THIS REVISED CODE ALLOWS RESEARCHERS TO SPECIFY THEIR LOWEST ACCEPTABLE AGE FOR NON-EDUCATION SPELL START/END DATES, WITH A DEFAULT VALUE OF 0 RETAINING ALL SPELLS STARTING AFTER BIRTH. SEE "${do_fld}/prog_nonchron INVESTIGATION.do".
-// CURRENTLY THE GLOBAL OPTIONS ALLOW A SINGLE CHOICE OF WHETHER TO DROP JUST PROBLEM OBSERVATIONS OR THE WHOLE pidp-Wave ENCOMPASSING BOTH SPELL START/END PRIOR TO BIRTH AND NON-EDUCATION SPELLS PRIOR TO THE CHOSEN AGE $noneducstatus_minage. IT WOULD BE POSSIBLE TO ALLOW SEPARATE DECISIONS ABOUT OBSERVATION/pidp-Wave DROP FOR EACH OF THESE.
+// prog_implausibledates IS REVISED TO GIVE THE OPTION OF DROPPING JUST THE IMPLAUSIBLE OBSERVATIONS _OR_ ALL pidp-Wave OBSERVATIONS WHERE START/END DATE IS BEFORE BIRTH. LIAM WRIGHT'S ORIGINAL CODE DROPS ALL pidp-Wave OBSERVATIONS WHERE NON-EDUCATION START/END DATE IS BEFORE AGE 12. THIS REVISED CODE ALLOWS RESEARCHERS TO SPECIFY THEIR LOWEST ACCEPTABLE AGE FOR NON-EDUCATION SPELL START/END DATES, WITH A DEFAULT VALUE OF 0 RETAINING ALL NON-EDUCATION SPELLS STARTING AFTER BIRTH. SEE "${do_fld}/prog_nonchron BHPS.do".
 capture program drop prog_implausibledates
 program prog_implausibledates
 	args xx
@@ -465,7 +467,7 @@ program prog_lastspellmissing_F
 	drop jbstat Job_Hours_IG Next_ff_jbstat XX YY
 end
 
-// prog_imputemissingspells IS USED FOR ALL DATASET VARIANTS. ANY FURLOUGH START AND END DATES IMPUTED HERE ARE CHECKED AND MADE PLAUSIBLE IN RELATION TO FURLOUGH SCHEME DATES. 
+// prog_imputemissingspells CREATES AN ADDITIONAL SPELL WITH MISSING DATA APART FROM DATES, TO FILL ANY GAP BETWEEN A SPELL End Date AND THE NEXT SPELL Start Date.
 capture program drop prog_imputemissingspells 	
 program prog_imputemissingspells
 	capture confirm variable Wave
@@ -522,20 +524,18 @@ program prog_checkoverlap
 	drop MaxBelow MinAbove
 end
 
-// prog_overlap FLAGS VARIOUS OVERLAPS (WITHIN "DATASET") AFFECTING (HERE, EDUCATION) START AND END DATES. NOTES BELOW INDICATE WHICH FLAGS ARE NOT IMPORTANT IF THE INTEREST IS ONLY END DATES. 
+// prog_overlap FLAGS VARIOUS OVERLAPS AFFECTING START AND END DATES. THESE OVERLAPS ARISE ACROSS DATASETS (ANNUAL(BHPS,UKHLS), LIFE(BHPS,UKHLS), EDUCATION(BHPS,UKHLS)): CLEANING HAS REMOVED ALL OVERLAPS WITHIN DATASETS.
 capture program drop prog_overlap
 program prog_overlap
 	capture drop F_* 
 	capture drop L_*
 	qui{
 		gen F_Overlap=0
-		by pidp (Spell), sort: replace F_Overlap=1 if _n<_N & Start_MY>=Start_MY[_n+1] & End_MY<=End_MY[_n+1]	// START PROBLEM F_OVERLAP=1 CAN BE IGNORED IF ONLY INTERESTED IN END DATES.
-		by pidp (Spell), sort: replace F_Overlap=2 if _n<_N & Start_MY<Start_MY[_n+1] & End_MY>End_MY[_n+1]		// End>End(t+1). F_OVERLAP=2 CONCERNS END DATES. IT WILL NOT AFFECT SELECTION OF LAST OR EARLIEST END DATE, BUT IT IMPLIES THAT THE Spell NUMBERING WILL NOT MATCH End DATES ORDER.
-		by pidp (Spell), sort: replace F_Overlap=3 if _n<_N & Start_MY<Start_MY[_n+1] & End_MY<=End_MY[_n+1] & End_MY>Start_MY[_n+1] // End>Start(t+1). F_OVERLAP=3 CAN BE IGNORED IF ONLY INTERESTED IN END DATES.
-		by pidp (Spell), sort: replace F_Overlap=4 if _n<_N & Start_MY>=Start_MY[_n+1] & End_MY>End_MY[_n+1] & Start_MY<End_MY[_n+1] // END AND START PROBLEMS. F_OVERLAP=4 CONCERNS END DATES. IT WILL NOT AFFECT SELECTION OF LAST OR EARLIEST END DATE, BUT IT IMPLIES THAT THE Spell NUMBERING WILL NOT MATCH End DATES ORDER.
+		by pidp (Spell), sort: replace F_Overlap=1 if _n<_N & Start_MY>=Start_MY[_n+1] & End_MY<=End_MY[_n+1]	// START PROBLEM F_OVERLAP=1
+		by pidp (Spell), sort: replace F_Overlap=2 if _n<_N & Start_MY<Start_MY[_n+1] & End_MY>End_MY[_n+1]		// End>End(t+1). F_OVERLAP=2 CONCERNS END DATES
+		by pidp (Spell), sort: replace F_Overlap=3 if _n<_N & Start_MY<Start_MY[_n+1] & End_MY<=End_MY[_n+1] & End_MY>Start_MY[_n+1] // End>Start(t+1)
+		by pidp (Spell), sort: replace F_Overlap=4 if _n<_N & Start_MY>=Start_MY[_n+1] & End_MY>End_MY[_n+1] & Start_MY<End_MY[_n+1] // END AND START PROBLEMS
 		noisily tab1 F_Overlap, missing
-		display "Cases of overlap error in spell End Dates (current spell has later end date than next spell)"	// THESE 2 LINES GENERATE AN EXTRA TABLE EMPHASISING EDUCATION END DATES, ON THE GROUNDS THAT A FOCUS ON LABOUR MARKET HISTORY (THAT DOES NOT REQUIRE CONSISTENT ADDITIONAL EDUCATION SPELLS) NEEDS ONLY DATE OF END OF FULL TIME EDUCATION, NOT EDUCATION START DATE.
-		noisily tab1 F_Overlap if inlist(F_Overlap,2,4), missing
 		by pidp (Spell), sort: gen F_Start_MY=cond(_n<_N,Start_MY[_n+1],.i)
 		by pidp (Spell), sort: gen F_End_MY=cond(_n<_N,End_MY[_n+1],.i)
 		by pidp (Spell), sort: gen F_Dataset=cond(_n<_N,Dataset[_n+1],.i)
@@ -543,12 +543,10 @@ program prog_overlap
 		noisily by F_Overlap, sort: tab2 Dataset F_Dataset, missing
 		
 		gen L_Overlap=0
-		by pidp (Spell), sort: replace L_Overlap=1 if _n>1 & Start_MY>=Start_MY[_n-1] & End_MY<=End_MY[_n-1]	// End<=End(t-1). L_OVERLAP=1 CONCERNS END DATES. IT WILL NOT AFFECT SELECTION OF LAST OR EARLIEST END DATE, BUT IT IMPLIES THAT THE Spell NUMBERING MIGHT WELL NOT MATCH End DATES ORDER.
-		by pidp (Spell), sort: replace L_Overlap=2 if _n>1 & Start_MY<Start_MY[_n-1] & End_MY>End_MY[_n-1]		// START PROBLEM. L_OVERLAP=2 CAN BE IGNORED IF ONLY INTERESTED IN END DATES.
-		by pidp (Spell), sort: replace L_Overlap=3 if _n>1 & Start_MY<Start_MY[_n-1] & End_MY<=End_MY[_n-1] & End_MY>Start_MY[_n-1]	// End<=End(t-1) AND START PROBLEM. L_OVERLAP=1 WILL NOT AFFECT SELECTION OF LAST OR EARLIEST END DATE, BUT IT IMPLIES THAT THE Spell NUMBERING MIGHT WELL NOT MATCH End DATES ORDER.
-		by pidp (Spell), sort: replace L_Overlap=4 if _n>1 & Start_MY>=Start_MY[_n-1] & End_MY>End_MY[_n-1] & Start_MY<End_MY[_n-1]	// End(t-1)>Start. L_OVERLAP=4 CAN BE IGNORED IF ONLY INTERESTED IN END DATES.
-		noisily tab1 L_Overlap, missing
-		display "Cases of overlap error in spell End Dates (current spell has earlier end date than previous spell)"	// THESE 2 LINES GENERATE AN EXTRA TABLE EMPHASISING EDUCATION END DATES, ON THE GROUNDS THAT A FOCUS ON LABOUR MARKET HISTORY (THAT DOES NOT REQUIRE CONSISTENT ADDITIONAL EDUCATION SPELLS) NEEDS ONLY DATE OF END OF FULL TIME EDUCATION, NOT EDUCATION START DATE.
+		by pidp (Spell), sort: replace L_Overlap=1 if _n>1 & Start_MY>=Start_MY[_n-1] & End_MY<=End_MY[_n-1]	// End<=End(t-1). L_OVERLAP=1 CONCERNS END DATES.
+		by pidp (Spell), sort: replace L_Overlap=2 if _n>1 & Start_MY<Start_MY[_n-1] & End_MY>End_MY[_n-1]		// START PROBLEM.
+		by pidp (Spell), sort: replace L_Overlap=3 if _n>1 & Start_MY<Start_MY[_n-1] & End_MY<=End_MY[_n-1] & End_MY>Start_MY[_n-1]	// End<=End(t-1) AND START PROBLEM.
+		by pidp (Spell), sort: replace L_Overlap=4 if _n>1 & Start_MY>=Start_MY[_n-1] & End_MY>End_MY[_n-1] & Start_MY<End_MY[_n-1]	// End(t-1)>Start.
 		noisily tab1 L_Overlap if inlist(L_Overlap,1,3), missing
 		by pidp (Spell), sort: gen L_Start_MY=cond(_n>1,Start_MY[_n-1],.i)
 		by pidp (Spell), sort: gen L_End_MY=cond(_n>1,End_MY[_n-1],.i)
@@ -563,7 +561,6 @@ program prog_overlap
 			}
 		}
 end
-//
 
 // prog_getvars IS A NEAT WAY OF GETTING VARIABLES FROM DIFFERENT DATA SOURCES BY ADDING RELEVANT PREFIXES TO A VARLIST OF JUST THE CORE PARTS OF VARIABLE NAMES.
 capture program drop prog_getvars
@@ -584,6 +581,7 @@ program define prog_getvars
 	use pidp `inlist' using "`file'", clear
 end
 
+// prog_waveoverlap RESOLVES DATE OVERLAPS ACROSS SPELLS.
 capture program drop prog_waveoverlap
 program define prog_waveoverlap
 	drop if Status==.m
@@ -599,8 +597,8 @@ program define prog_waveoverlap
 	drop XX `drop'
 end
 
-// prog_collapsespells RECORDS A "New employer" FOR TRANSITIONS BETWEEN EMPLOYMENT AND NON-EMPLOYMENT OR BETWEEN EMPLOYMENT AND SELF-EMPLOYMENT. IT RECODES Status=100 AS Status=1/2 IF THE LATTER IS THE NEXT/PREVIOUS RECORDED STATUS AND EITHER SAME JOB OR NEW JOB, SAME EMPLOYER.
-// CHANGED TO COPY FORWARD/BACKWARD EMPLOYMENT STATUS TO FURLOUGH SPELLS, WHERE RELEVANT.
+// prog_collapsespells COLLAPSES SPELLS.
+// COMMENT: RECORDS A "New employer" FOR TRANSITIONS BETWEEN EMPLOYMENT AND NON-EMPLOYMENT OR BETWEEN EMPLOYMENT AND SELF-EMPLOYMENT. IT RECODES Status=100 AS Status=1/2 IF THE LATTER IS THE NEXT/PREVIOUS RECORDED STATUS AND EITHER SAME JOB OR NEW JOB, SAME EMPLOYER.
 capture program drop prog_collapsespells
 program prog_collapsespells
 	by pidp (Spell), sort: replace Job_Change=3 /*	
@@ -609,7 +607,7 @@ program prog_collapsespells
 	by pidp (Spell), sort: replace Job_Change=3 /*	
 		*/ if inlist(Status[_n+1],1,2) & inlist(Status,1,2) & Status!=Status[_n+1]	// 3. "New employer" IF EMPLOYED (t) AND (t+1) BUT Status CHANGED BETWEEN EMPLOYMENT AND SELF-EMPLOYMENT.
 	by pidp (Spell), sort: replace Status=Status[_n+1] /*
-		*/ if Status==100 & inlist(Status[_n+1],1,2) & inlist(Job_Change[_n+1],0,2)	// SpellS COMBINED (Status(t) 100 CHANGED TO 1 OR 2 TO MATCH Status(t+1)) IF Job_Change(t+1) INDICATES EITHER SAME JOB OR NEW JOB, SAME EMPLOYER.
+		*/ if Status==100 & inlist(Status[_n+1],1,2) & inlist(Job_Change[_n+1],0,2)	// Status copied (Status(t) 100 CHANGED TO 1 OR 2 TO MATCH Status(t+1)) IF Job_Change(t+1) INDICATES EITHER SAME JOB OR NEW JOB, SAME EMPLOYER.
 		
 	gen Reverse=-Spell
 	by pidp (Spell), sort: gen XX=1 /*
@@ -1032,57 +1030,18 @@ program define prog_spellbounds
 	gen FullPeriod=(`v1'<=`LB' & `v2'>=`UB' & !missing(`LB',`UB'))
 end
 
-// prog_cleaneduhist HAS MINOR REVISIONS.
+// prog_cleaneduhist DOES NOT DROP CASES WITH IMPLAUSIBLE START DATES.
 capture program drop prog_cleaneduhist				// CLEAN EDUCATION HISTORY.
 program define prog_cleaneduhist
 	gen Status=7
 	gen Source="eduhist_w"+strofreal(Wave)
 	gen Job_Hours=.i
 	gen Job_Change=.i
-	capture confirm variable SpellORIG				// CREATE A COPY OF THE ORIGINAL Spell VARIABLE. A RECORD OF THE ORIGINAL SPELL NUMBER IS KEPT FOR COMPARISON. REMARK: IT WOULD BE POSSIBLE TO USE A DIFFERENT NAME FOR EDUCATION SPELLS, TO ENSURE THESE ARE DISTINGUISHED FROM LABOUR MARKET SPELLS. HOWEVER, THE Spell VARIABLE CREATED HERE IS SELF-CONTAINED WITHIN THE RELEVANT DATA FILES SO THIS TERMINOLOGY IS RETAINED.
-	if _rc==1 {					
-		gen SpellORIG = Spell
-		}
 	capture drop Spell
 	by pidp (Start_MY End_MY), sort: gen Spell=_n
 	gen Dataset=Spell								// Dataset IS USED IN prog_overlap: THE IDEA IS THAT SPELLS SHOULD NOT OVERLAP WITHIN A Dataset. USING Spell AS A DATASET JUST ALLOWS CHECKING OF CONTEMPORANEOUS AND CONTIGUOUS SPELL START AND END DATES.
-//	by pidp (Start_MY End_MY), sort: gen SpellEd=_n	// THESE 2 LINES WOULD BE AN OPTION IF A DIFFERENT VARIABLE NAME WERE USED. USED IN A CHECK.
-//	gen Dataset=SpellEd								
 	prog_overlap
 	drop if L_Overlap==1							// L_Overlap=1 if _n>1 & Start_MY>=Start_MY[_n-1] & End_MY<=End_MY[_n-1] THIS LINE DROPS SUBSUMED SPELLS, WHICH IS OK AS NONE INVOLVE OVERWRITING A COMPLETED FTE END DATE.
-	drop F_* L_* Dataset
-prog_collapsespells
-	
-	foreach var in Start End{
-	    gen `var'_Y=year(dofm(`var'_MY))			// COMMENT: THIS WILL NOT WORK IF Start_Y IS RETAINED RATHER THAN PREVIOUSLY DROPPED.
-//		gen `var'_YNEW=year(dofm(`var'_MY))			// USED IF Start_Y ETC IS NOT PREVIOUSLY DELETED AND THUS IS ALREADY DEFINED. THIS WAS DONE ORIGINALLY WHEN THE .do FILE WAS INVESTIGATED BUT DELETION FOLLOWED BY RE-DEFINITION LOOKS FINE. USED IN A CHECK.
-		}
-	merge m:1 pidp Wave using "${dta_fld}/Interview Grid", /*
-		*/ nogenerate keep(match master) keepusing(Birth_Y)
-//	prog_implausibledates Start						// NOTE: THIS LINE WOULD APPLY prog_implausibledates TO START DATES. ON THE GROUNDS THAT LABOUR MARKET HISTORIES JUST REQUIRE FTE END DATE AND DO NOT WISH TO DELETE DATA ON THE BASIS OF IMPLAUSIBLE START DATES, THIS IS NOT DONE HERE.
-	by pidp Wave (Spell), sort: replace Spell=_n
-//	by pidp Wave (Spell), sort: gen SpellEdNEW=_n	// A POSSIBLE REPLACEMENT FOR "by pidp Wave (Spell), sort: replace Spell=_n" IF IT'S DESIRED TO CHECK WHAT IS CHANGED. USED IN A CHECK.
-	gen Status_Spells=1
-//	gen Status_SpellsEd=1							// THIS LINE WOULD BE AN OPTION OF A DIFFERENT VARIABLE NAME WERE USED. USED IN A CHECK.
-	drop *_Y										// CHECKING INDICATES NO VALUE IN RETAINING *_Y HERE.
-	
-	prog_attrend									// prog_attrend RELATES TO Job_Attraction AND End_Reason. IT GENERATES MISSING VALUES WHEN Status==7. ITS USE COULD BE DELAYED UNTIL LATER BUT APART FROM CLUTTER FROM A LARGE AMOUNT OF MISSING DATA THERE SEEMS NO PROBLEM RUNNING THAT PROGRAM HERE. 
-end
-//
-// LIAM WRIGHT ORIGINAL prog_cleaneduhist
-// 
-/*
-capture program drop prog_cleaneduhist
-program define prog_cleaneduhist
-	gen Status=7
-	gen Source="eduhist_w"+strofreal(Wave)
-	gen Job_Hours=.i
-	gen Job_Change=.i
-	capture drop Spell
-	by pidp (Start_MY End_MY), sort: gen Spell=_n
-	gen Dataset=Spell
-	prog_overlap
-	drop if L_Overlap==1
 	drop F_* L_* Dataset
 	prog_collapsespells
 	
@@ -1091,14 +1050,14 @@ program define prog_cleaneduhist
 		}
 	merge m:1 pidp Wave using "${dta_fld}/Interview Grid", /*
 		*/ nogenerate keep(match master) keepusing(Birth_Y)
-	prog_implausibledates Start
+	prog_implausibledates Start						// THIS LINE APPLIES prog_implausibledates TO START DATES. THAT PROGRAM DROPS EDUCATION DATES STARTING BEFORE BIRTH.
 	by pidp Wave (Spell), sort: replace Spell=_n
 	gen Status_Spells=1
 	drop *_Y
 	
-	prog_attrend
+	prog_attrend									// prog_attrend RELATES TO Job_Attraction AND End_Reason. 
 end
-*/
+
 
 capture program drop prog_overwritespell
 program define prog_overwritespell
@@ -1266,7 +1225,7 @@ end
 capture program drop prog_attrend
 program define prog_attrend
 	foreach i of numlist 1/15 97{
-   		if !inrange(`i',12,15){
+		if !inrange(`i',12,15){
 //			gen End_Reason`i'=cond(inlist(Status,1,2,100),.m,.i)
 			gen End_Reason`i'=cond(inlist(Status,1,2,12,13,100,112,113,212,213,10012,10013),.m,.i)
 			}
@@ -1284,7 +1243,7 @@ program define prog_monthfromseason
 	gen Reverse=-Spell
 
 	foreach i in MinAbove MaxBelow{
-		local sortby=cond("`i'"=="MinAbove","Reverse","Spell")		// `sortby' WAS `sort' IN LIAM WRIGHT CODE.
+		local sortby=cond("`i'"=="MinAbove","Reverse","Spell")		// `sortby' IS `sort' IN LIAM WRIGHT CODE.
 		local bound=cond("`i'"=="MinAbove","Upper","Lower")
 		local function=cond("`i'"=="MinAbove","min","max")
 		local list=cond("`i'"=="MinAbove",",IntDate_MY","")

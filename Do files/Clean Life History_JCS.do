@@ -7,6 +7,8 @@ CLEAN LIFE HISTORY.DO
 	
 	UPDATE: 
 	* FOR BHPS DATA, OPTION TO CHOOSE CASE-BY-CASE CORRECTION OF NON-CHRONOLOGICAL START DATES. IF CHOSEN, THIS USES THE NEW FILE prog_nonchron_BHPS.do.
+	
+	* LW VERSION FORCES OPTION "$nonchron_correct"!="Y" WHICH ENTAILS CALLING THE ORIGINAL prog_nonchron.
 
 ********************************************************************************
 */

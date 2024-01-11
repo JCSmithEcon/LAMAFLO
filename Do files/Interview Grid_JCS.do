@@ -6,7 +6,9 @@ INTERVIEW GRID.DO
 	ARE USED FREQUENTLY TO CONSTRUCT WORKING-LIFE HISTORIES.
 	
 	THIS FILE IS ESSENTIALLY IDENTICAL TO LW. INTERPRETATIONS OF CODE ARE ADDED.
-	
+			
+	* LW VERSION USES THE SAME CODE.
+
 ********************************************************************************
 */
 
