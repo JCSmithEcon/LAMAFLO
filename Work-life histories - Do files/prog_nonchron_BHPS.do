@@ -1,7 +1,7 @@
 
 /*
 *************************************************************************************************************************************************
-*** prog_nonchron_INVESTIGATION ***
+*** prog_nonchron_BHPS ***
 
 	THIS IS A NEW DO FILE THAT REPLACES PROGRAM prog_nonchron FOR BHPS DATA WHEN THE OPTION "Y" IS CHOSEN FOR global nonchron_correct.
 	IT MAKES CASE-BY-CASE CORRECTION OF NON-CHRONOLOGICAL START DATES.
