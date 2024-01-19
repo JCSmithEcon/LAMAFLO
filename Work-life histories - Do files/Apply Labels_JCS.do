@@ -24,6 +24,7 @@ capture label variable FTE_FIN_MY "Latest plausible date left full-time educatio
 capture label variable FTE_FIN_Source "Source variable (Further Education, School, or Life History)"
 capture label variable FTE_IN_MY "Latest plausible date in full-time education without gap"
 capture label variable FTE_IN_Source "Source variable (Further Education, School, or Life History)"
+capture label variable FTE_MY "Date left full-time education (combines FTE_FIN and FTE_IN)"
 capture label variable FTE_NO_MY "Date no education recorded"
 capture label variable FTE_NO_Source "Source variable (Further Education, School, or Life History)"
 capture label variable FTE_Source "FTE_*_MY variable with data"
