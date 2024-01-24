@@ -36,11 +36,11 @@ SECTION 1. Change file locations. Select appropriate file suffix (stub) if using
 * Top-level directory.
 cd "C:/Users/ecscd/OneDrive - University of Warwick/"
 * Folder containing data to be analysed.
-global input_fld					"LAMAFLO JCS Datasets on OneDrive/Dynamics/23Jan EUNM QUI"
+global input_fld					"data"
 * Folder dynamic data outputs will be saved in.
-global output_fld					"LAMAFLO JCS Datasets on OneDrive/Dynamics/23Jan EUNM QUI"
+global output_fld					"data"
 * Folder do files are kept in.
-global do_fld						"LAMAFLO Stata code on OneDrive - JCS"
+global do_fld						"do files"
 * Set Personal ado folder
 sysdir set PLUS 					"${do_fld}/ado/"
 
@@ -62,7 +62,7 @@ global end							"End_MY"
 global intdate						"IntDate_MY"
 
 * Name of log file. NOTE: LOG FILE WILL BE SAVED IN THE FOLDER DO FILES ARE KEPT IN. COMMENT OUT USING THE LOG FILE NAME USING // OR LEAVE BLANK "" FOR NO LOG FILE.
-global logfile						"Dynamics_${data}_23Jan_EUNM_QUI.log"							
+global logfile						"logfile.log"							
 
 
 /*
@@ -127,7 +127,7 @@ global Quarterly_Flows_Weighted		"Y"
 global Annual_Flows_Weighted		"Y"
 * NOTE: If you want weighted flows, this requires accessing BHPS/UKHLS data to obtain weights. The following macro values were set in "Launch Programme.do". If necessary (e.g. if you have started a new Stata session), please re-specify these details relating to raw BHPS and UKHLS data:
 	* Directory in which UKHLS and BHPS files are kept.
-	global fld						"LAMAFLO UKHLS BHPS Data on OneDrive"	
+	global fld						"UKHS and BHPS data"	
 	* BHPS Folder Prefix for Stata Files
 	global bhps_path				bhps
 	* UKHLS Folder Prefix for Stata Files
